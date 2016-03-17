@@ -1,0 +1,118 @@
+% Local Feature Matching Code
+% Written by James Hays, Georgia Tech
+% Modified for Octave by Jon Denning, Taylor University
+
+% Returns a set of feature descriptors for a given set of interest points. 
+
+% 'image' can be grayscale or color, your choice.
+% 'x' and 'y' are nx1 vectors of x and y coordinates of interest points.
+%   The local features should be centered at x and y.
+% 'feature_width', in pixels, is the local feature width. You can assume
+%   that feature_width will be a multiple of 4 (i.e. every cell of your
+%   local SIFT-like feature will have an integer width and height).
+% If you want to detect and describe features at multiple scales or
+% particular orientations you can add input arguments.
+
+% 'features' is the array of computed features. It should have the
+%   following size: [length(x) x feature dimensionality] (e.g. 128 for
+%   standard SIFT)
+
+function [features] = get_features(image, x, y, feature_width)
+
+% To start with, you might want to simply use normalized patches as your
+% local feature. This is very simple to code and works OK. However, to get
+% full credit you will need to implement the more effective SIFT descriptor
+% (See Szeliski 4.1.2 or the original publications at
+% http://www.cs.ubc.ca/~lowe/keypoints/)
+
+% Your implementation does not need to exactly match the SIFT reference.
+% Here are the key properties your (baseline) descriptor should have:
+%  (1) a 4x4 grid of cells, each feature_width/4.
+%  (2) each cell should have a histogram of the local distribution of
+%    gradients in 8 orientations. Appending these histograms together will
+%    give you 4x4 x 8 = 128 dimensions.
+%  (3) Each feature should be normalized to unit length
+%
+% You do not need to perform the interpolation in which each gradient
+% measurement contributes to multiple orientation bins in multiple cells
+% As described in Szeliski, a single gradient measurement creates a
+% weighted contribution to the 4 nearest cells and the 2 nearest
+% orientation bins within each cell, for 8 total contributions. This type
+% of interpolation probably will help, though.
+
+% You do not have to explicitly compute the gradient orientation at each
+% pixel (although you are free to do so). You can instead filter with
+% oriented filters (e.g. a filter that responds to edges with a specific
+% orientation). All of your SIFT-like feature can be constructed entirely
+% from filtering fairly quickly in this way.
+
+% You do not need to do the normalize -> threshold -> normalize again
+% operation as detailed in Szeliski and the SIFT paper. It can help, though.
+
+% Another simple trick which can help is to raise each element of the final
+% feature vector to some power that is less than one.
+
+% Placeholder that you can delete. Empty features.
+%features = zeros(size(x,1), 128);
+
+clamp = 0.2;
+dimensions = 128;
+contributions = 8;
+% Final features matrix, length of x by 128
+features = zeros(length(x), dimensions);
+subwindow_step = 4;
+window_step = subwindow_step * 4;
+% Create bins to throw histograms into
+bins = [0:45:360] * pi / 180;
+
+% Grab orientation of gradients
+% http://www.mathworks.com/help/images/ref/imgradient.html
+[magnitudes, angles] = imgradient(image);
+% Compute
+disp(angles);
+angles = angles + 180;
+angles = angles .* pi / 180;
+fprintf('angles after');
+disp(angles);
+% Calculate iterator array from window size
+iterator = 1:subwindow_step:window_step;
+
+for i = 1:length(x)
+    descriptors = zeros(1, dimensions); 
+    contribution_step = 1;
+
+    window_box = angles(y(i)-feature_width/2+1 : y(i)+feature_width/2, x(i)-feature_width/2+1 : x(i)+feature_width/2);
+
+    for I = iterator
+        for J = iterator
+            subwindow_angles = window_box(I:I + subwindow_step - 1, J:J + subwindow_step - 1);
+            % Get 1x16 array of orientations
+            orientations = subwindow_angles(:);
+            % Transpose orientations and dump into a histogram of size bins
+            % http://www.mathworks.com/help/matlab/ref/histcounts.html
+            hist = histcounts(orientations', bins);  
+            % Normalize, clam, renormalize (yes I'm doing it anyway)
+            % http://www.mathworks.com/help/matlab/ref/norm.html
+            hist = hist / norm(hist);
+            % Clamp gradients to avoid excessive influence from high gradients
+            hist(hist > clamp) = clamp;
+            % Renormalize after clamping
+            hist = hist / norm(hist);
+            % Set contributions to calculated histogram
+            descriptors(contribution_step:contribution_step+(contributions - 1)) = hist;
+            contribution_step = contribution_step + contributions;
+        end
+    end
+    % Add descriptors to features matrix for this feature
+    features(i, :) = descriptors;
+end  
+
+end
+
+
+
+
+
+
+
+
