@@ -28,14 +28,18 @@ image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
 eval_file = '../data/Notre Dame/921919841_a30df938f2_o_to_4191453057_c86028ce1f_o.mat';
 
 %This pair is relatively easy
-% image1 = imread('../data/Mount Rushmore/9021235130_7c2acd9554_o.jpg');
-% image2 = imread('../data/Mount Rushmore/9318872612_a255c874fb_o.jpg');
-% eval_file = '../data/Mount Rushmore/9021235130_7c2acd9554_o_to_9318872612_a255c874fb_o.mat';
+%image1 = imread('../data/Mount Rushmore/9021235130_7c2acd9554_o.jpg');
+%image2 = imread('../data/Mount Rushmore/9318872612_a255c874fb_o.jpg');
+%eval_file = '../data/Mount Rushmore/9021235130_7c2acd9554_o_to_9318872612_a255c874fb_o.mat';
 
 %This pair is relatively difficult
-% image1 = imread('../data/Episcopal Gaudi/4386465943_8cf9776378_o.jpg');
-% image2 = imread('../data/Episcopal Gaudi/3743214471_1b5bbfda98_o.jpg');
-% eval_file = '../data/Episcopal Gaudi/4386465943_8cf9776378_o_to_3743214471_1b5bbfda98_o.mat';
+%image1 = imread('../data/Episcopal Gaudi/4386465943_8cf9776378_o.jpg');
+%image2 = imread('../data/Episcopal Gaudi/3743214471_1b5bbfda98_o.jpg');
+%eval_file = '../data/Episcopal Gaudi/4386465943_8cf9776378_o_to_3743214471_1b5bbfda98_o.mat';
+
+% Other test pair
+%image1 = imread('../data/House/IMG_0485.jpg');
+%image2 = imread('../data/House/IMG_0488.jpg');
 
 image1 = single(image1)/255;
 image2 = single(image2)/255;

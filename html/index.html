@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Computer Vision Assignment 02 - Local Feature Matching</title>
+<title>Computer Vision Assignment 01 - Hybrid Images</title>
 
 <link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
 
@@ -18,70 +18,61 @@
 <body>
 <div id="header" >
 <div id="headersub">
-<h1>Your Name</h1>
+<h1>Bradley Rosenfeld</h1>
 </div>
 </div>
 <div class="container">
 
-<h2>COS 351 Assignment 02 - Local Feature Matching</h2>
+<h2>COS 351 Assignment 02 - Feature Detection</h2>
 
-<div style="float: right; padding: 20px">
-<img src="placeholder.jpg" />
-<p style="font-size: 14px">Example of a right floating element.</p>
+<div style="float: right; padding: 20px; width: 45%;">
+<img src="images/house/vis_dots.png" style="max-width: 100%;">
+<p style="font-size: 14px">Example of features detected on a house.</p>
 </div>
 
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>For this project I was given the task of developing the three parts of a feature detection pipeline: finding interest points (edges), figuring out what features are important, and then matching those features to features found in an image of the same object. I found this project challenge because of my general lack of knowledge of the features available in Matlab. But once I discovered the debugging tools, work progressed much faster.</p>
 
-<ol>
-<li>list element 1.</li>
-<li>list element 2.</li>
-<li>etc.</li>
-</ol>
+<div style="clear:both"></div>
 
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<h3>The algorithm</h3>
 
-<div style="clear:both">
-<h3>Example heading</h3>
+<p>Implementing the harris corner detector turned out to be the easiest part of the assignment. Once I discovered the imgradient function I was able to calculate Ix and Iy correctly. My algorithm was picking up points on the edges of the images, so I added some simple suppression of all the edges out to the feature_width mark. This suppression is simple in the sense that it simply ignores anything close to the edge of the image (by setting it to 0). Finding maximum values in the neighborhood turned out to be fairly simple with the use of the colfilt function which allowed me to automatically find the maximum value in a sliding 5x5 array.</p>
 
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Getting the features was extremely difficult. I had trouble figuring out how the SIFT algorithm was supposed to work. Once I figured out how to properly calculate the gradient angles, I was able to get something reasonablly close. I did end up implementing the normalize, clamp, renormalize pattern just to see how it would affect my results.</p>
 
-<h2>Example of code with highlighting</h2>
-The javascript in the <code>highlighting</code> folder is configured to do syntax highlighting in code blocks such as the one below.<p>
+<p>Matching features was easy once I figured out how to calculate the distances properly. The <a href="http://www.mathworks.com/help/matlab/ref/repmat.html">repmat</a> function was very helpful for this part of the problem.
 
-<pre><code>
-%example code
-for i = 1:length(offset)
-    source = imread(sprintf('%s/source_%02d.jpg',data_dir,i));
-    mask   = imread(sprintf('%s/mask_%02d.jpg',data_dir,i));
-    target = imread(sprintf('%s/target_%02d.jpg',data_dir,i));
+<h3>Results</h3>
 
-</code></pre>
+<p>I ended up using a lot of loops (especially in get_features.m). This seems to result in a very slow algorithm. Even when working with the example data set (where I only found around 100 features) it took several minutes to calculate.</p>
 
-<h3>Results in a table</h3>
+<p>Overall my algorithm seems to perform fairly well. It has an ok good matches to bad matches ratio. However, it completely failed on the difficult example data (most likely because of the large difference in contrast and color between the two images). I'd be interested to see how I could tune my algorithm to fix that.</p>
 
 <table border=1>
 <tr>
-<td>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-</td>
+	<td>
+		<img src="images/notre-dame/vis_dots.png" style="width:33%"><img src="images/notre-dame/vis_arrows.png" style="width:33%"><img src="images/notre-dame/eval.png" style="width:33%">
+		<p>79 Good Matches. 7 Bad Matches</p>
+	</td>
 </tr>
-
 <tr>
-<td>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-</td>
+	<td>
+		<img src="images/mount-rushmore/vis_dots.png" style="width:33%"><img src="images/mount-rushmore/vis_arrows.png" style="width:33%"><img src="images/mount-rushmore/eval.png" style="width:33%">
+		<p>153 Good Matches. 10 Bad Matches</p>
+	</td>
 </tr>
-
+<tr>
+	<td>
+		<img src="images/episcopal-gaudi/eval.png" style="width:33%; display: block; margin:auto;">
+		<p>Fail!</p>
+	</td>
+</tr>
+<tr>
+	<td>
+		<img src="images/house/vis_dots.png" style="width:50%;"><img src="images/house/vis_arrows.png" style="width:50%;">
+		<p>Looking good</p>
+	</td>
+</tr>
 </table>
-
-<div style="clear:both" >
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-</div>
 </body>
 </html>
